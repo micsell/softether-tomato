@@ -186,6 +186,7 @@ obj-$(TCONFIG_OPENVPN) += openvpn_plugin_auth_nvram
 obj-$(TCONFIG_TINC) += tinc
 obj-$(TCONFIG_EMF) += emf
 obj-$(TCONFIG_EMF) += igs
+obj-$(TCONFIG_SOFTETHER) += softether
 
 # Tomato RAF
 # additional modules for nginx
@@ -2119,6 +2120,17 @@ openvpn-install: openvpn
 	install -D openvpn/src/openvpn/.libs/openvpn $(INSTALLDIR)/openvpn/usr/sbin/openvpn
 	$(STRIP) -s $(INSTALLDIR)/openvpn/usr/sbin/openvpn
 	chmod 0500 $(INSTALLDIR)/openvpn/usr/sbin/openvpn
+
+softether:
+	echo "Done"
+
+softether-clean:
+	echo "Done"
+
+softether-install:
+	install -D softether/vpnserver $(INSTALLDIR)/softether/usr/sbin/vpnserver
+	install -D softether/hamcore.se2 $(INSTALLDIR)/softether/usr/sbin/hamcore.se2
+	chmod 0500 $(INSTALLDIR)/softether/usr/sbin/vpnserver
 
 openvpn_plugin_auth_nvram:nvram
 

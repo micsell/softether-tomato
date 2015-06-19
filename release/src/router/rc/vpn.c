@@ -1060,6 +1060,13 @@ void start_softether()
 		stop_softether();
 		return;
 	}
+	if ( symlink("/usr/sbin/hamcore.se2", "/etc/softether/hamcore.se2" ))
+	{
+		vpnlog(VPN_LOG_ERROR,"Creating symlink failed...");
+		stop_softether();
+		return;
+	}
+
 
 	// Make sure module is loaded
 	modprobe("tun");

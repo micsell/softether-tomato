@@ -679,6 +679,15 @@ static void nat_table(void)
 	
 	//2 for nat
 	ipt_qoslimit(2);
+#ifdef TCONFIG_SOFTETHER
+/*
+iptables -t nat -I PREROUTING -i br0 -d 192.168.77.1 -p udp --dport 53 -j DNAT --to-destination 192.168.77.1:5353
+iptables -t nat -I OUTPUT -d 127.0.0.1 -p udp --dport 53 -j DNAT --to-destination 127.0.0.1:5353
+*/
+		ipt_write("-A OUTPUT -d 127.0.0.1 -p udp --dport 53  -j DNAT --to-destination 127.0.0.1:5353\n");
+		ipt_write("-A PREROUTING -i %s -d %s -p udp --dport 53  -j DNAT --to-destination %s:5353\n",
+			lanface, nvram_safe_get("lan_ipaddr"), nvram_safe_get("lan_ipaddr"));
+#endif
 	
 	if (gateway_mode) {
 		strlcpy(lanaddr, nvram_safe_get("lan_ipaddr"), sizeof(lanaddr));
