@@ -1043,6 +1043,16 @@ void start_softether()
 	vpnlog(VPN_LOG_INFO,"Softether starting...");
 	// Make sure softether directory exists
 	mkdir("/etc/softether", 0700);
+        if (nvram_get_file("softether_config", "/tmp/softether.tgz", 65536)) {
+            if (eval("tar", "-xzf", "/tmp/softether.tgz", "-C", "/", "etc/softether/vpn_server.config") == 0)
+                unlink("/tmp/softether.tgz");
+            else {
+		vpnlog(VPN_LOG_ERROR,"Extracting softether config file failed...");
+		stop_softether();
+		return;
+            }
+
+        }
 	// Make sure symbolic link exists
 	if ( symlink("/usr/sbin/vpnserver", "/etc/softether/vpnserver" ))
 	{
