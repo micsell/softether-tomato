@@ -34,6 +34,9 @@ endif
 ifeq ($(TCONFIG_JFFS2),y)
 OBJS += jffs2.o
 endif
+ifeq ($(TCONFIG_SOFTETHER),y)
+OBJS += vpn.o
+endif
 ifeq ($(TCONFIG_OPENVPN),y)
 OBJS += vpn.o
 endif

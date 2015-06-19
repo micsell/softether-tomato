@@ -243,7 +243,11 @@ else
           ifeq ($(TCONFIG_TINC),y)
             export FULL_OPENSSL := y
           else
-            FULL_OPENSSL :=
+            ifeq ($(TCONFIG_SOFTETHER),y)
+              export FULL_OPENSSL := y
+            else
+              FULL_OPENSSL :=
+            endif
           endif
         endif
       endif
@@ -444,6 +448,7 @@ endif
 #	$(if $(TCONFIG_IPSEC),@cp -f,@mv) $(TARGETDIR)/usr/lib/iptables/libipt_policy.*o $(PLATFORMDIR)/extras/ipsec/ || true
 
 	$(if $(TCONFIG_OPENVPN),@cp -f,$(if $(TCONFIG_USB_EXTRAS),@cp -f,$(if $(TCONFIG_IPV6),@cp -f,@mv))) $(TARGETDIR)/lib/modules/*/kernel/drivers/net/tun.*o $(PLATFORMDIR)/extras/ || true
+	$(if $(TCONFIG_SOFTETHER),@cp -f,$(if $(TCONFIG_USB_EXTRAS),@cp -f,$(if $(TCONFIG_IPV6),@cp -f,@mv))) $(TARGETDIR)/lib/modules/*/kernel/drivers/net/tun.*o $(PLATFORMDIR)/extras/ || true
 	$(if $(TCONFIG_EBTABLES),@cp -f,@mv) $(TARGETDIR)/lib/modules/*/kernel/net/bridge/netfilter/ebt*.*o $(PLATFORMDIR)/extras/ || true
 
 	$(if $(TCONFIG_RAID),@cp -f,@mv) $(TARGETDIR)/usr/sbin/mdadm $(PLATFORMDIR)/extras/raid/ || true
@@ -2085,9 +2090,9 @@ lzo-clean:
 lzo-install: lzo
 	install -D lzo/src/.libs/liblzo2.so $(INSTALLDIR)/lzo/usr/lib/liblzo2.so.2.0.0
 	$(STRIP) $(INSTALLDIR)/lzo/usr/lib/liblzo2.so.2.0.0
-	cd $(INSTALLDIR)/lzo/usr/lib && \
-		ln -sf liblzo2.so.2.0.0 liblzo2.so.2 && \
-		ln -sf liblzo2.so.2.0.0 liblzo2.so
+#	cd $(INSTALLDIR)/lzo/usr/lib && \
+#		ln -sf liblzo2.so.2.0.0 liblzo2.so.2 && \
+#		ln -sf liblzo2.so.2.0.0 liblzo2.so
 
 openvpn/.conf: openssl lzo
 	cd openvpn && ./autogen.sh && \

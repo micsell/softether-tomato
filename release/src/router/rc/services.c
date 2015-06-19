@@ -2899,6 +2899,13 @@ TOP:
 		goto CLEAR;
 	}
 #endif
+#ifdef TCONFIG_SOFTETHER
+	if (strncmp(service, "vpnserver", 9) == 0) {
+		if (action & A_STOP) stop_softether(atoi(&service[9]));
+		if (action & A_START) start_softether(atoi(&service[9]));
+		goto CLEAR;
+	}
+#endif
 
 #ifdef TCONFIG_OPENVPN
 	if (strncmp(service, "vpnclient", 9) == 0) {

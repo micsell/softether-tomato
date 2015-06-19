@@ -482,6 +482,20 @@ extern void stop_pptpd(void);
 extern void write_pptpd_dnsmasq_config(FILE* f);
 #endif
 
+#ifdef TCONFIG_SOFTETHER
+extern void run_softether_firewall_scripts();
+extern void start_softether();
+extern void stop_softether();
+extern void start_vpnclient(int clientNum);
+extern void stop_vpnclient(int clientNum);
+extern void start_vpnserver(int serverNum);
+extern void stop_vpnserver(int serverNum);
+extern void start_vpn_eas();
+extern void stop_vpn_eas();
+extern void run_vpn_firewall_scripts();
+extern void write_vpn_dnsmasq_config(FILE*);
+extern int write_vpn_resolv(FILE*);
+#endif
 // vpn.c
 #ifdef TCONFIG_OPENVPN
 extern void start_vpnclient(int clientNum);
@@ -494,6 +508,7 @@ extern void run_vpn_firewall_scripts();
 extern void write_vpn_dnsmasq_config(FILE*);
 extern int write_vpn_resolv(FILE*);
 #else
+#ifndef TCONFIG_SOFTETHER
 /*
 static inline void start_vpnclient(int clientNum) {}
 static inline void stop_vpnclient(int clientNum) {}
@@ -505,6 +520,7 @@ static inline void write_vpn_dnsmasq_config(FILE*) {}
 static inline void start_vpn_eas() { }
 static inline void stop_vpn_eas() { }
 #define write_vpn_resolv(f) (0)
+#endif
 #endif
 
 // tinc.c

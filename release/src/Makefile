@@ -566,6 +566,16 @@ define RouterOptions
 		sed -i "/TCONFIG_NGINX/d" $(1); \
 		echo "TCONFIG_NGINX=y" >>$(1); \
 	fi; \
+	if [ "$(SOFTETHER)" = "y" ]; then \
+		sed -i "/TCONFIG_LZO/d" $(1); \
+		echo "TCONFIG_LZO=y" >>$(1); \
+		sed -i "/TCONFIG_SOFTETHER/d" $(1); \
+		echo "TCONFIG_SOFTETHER=y" >>$(1); \
+		if [ "$(CONFIG_LINUX26)" = "y" ]; then \
+			sed -i "/TCONFIG_FTP_SSL/d" $(1); \
+			echo "TCONFIG_FTP_SSL=y" >>$(1); \
+		fi; \
+	fi; \
 	if [ "$(OPENVPN)" = "y" ]; then \
 		sed -i "/TCONFIG_LZO/d" $(1); \
 		echo "TCONFIG_LZO=y" >>$(1); \
@@ -1013,6 +1023,13 @@ else
 	@$(MAKE) bin OPENVPN=y NTFS=y BBEXTRAS=y USBEXTRAS=y B=E BUILD_DESC="$(VPN)" USB="USB" DNSCRYPT=y PPTPD=y
 endif
 
+k:
+ifeq ($(CONFIG_LINUX26),y)
+	@$(MAKE) bin NO_CIFS=y NO_ZEBRA=y B=V BUILD_DESC="Softether" USB="" PPTPD=y SOFTETHER=y
+else
+	@$(MAKE) bin OPENVPN=y NTFS=y BBEXTRAS=y USBEXTRAS=y B=E BUILD_DESC="$(VPN)" USB="USB" DNSCRYPT=y PPTPD=y
+endif
+
 ## BTgui-VPN
 c:
 ifeq ($(CONFIG_LINUX26),y)
@@ -1149,6 +1166,9 @@ r2i:
 r2j:
 	@$(MAKE) j MIPS32=r2
 
+r2k:
+	@$(MAKE) k MIPS32=r2
+
 r2v:
 	@$(MAKE) v MIPS32=r2
 
@@ -1229,6 +1249,10 @@ n64v:
 
 n64m:
 	@$(MAKE) r2m NVRAM_SIZE=64 LINKSYS_E_64k=y
+
+n64k:
+	@$(MAKE) r2k NVRAM_SIZE=64 LINKSYS_E_64k=y
+
 
 
 #Linksys E-Series with 4MB Flash (Max Flashsize=3866624)

@@ -1024,6 +1024,133 @@ void start_vpnserver(int serverNum)
 	vpnlog(VPN_LOG_INFO,"VPN GUI server backend complete.");
 }
 
+void start_softether()
+{
+	FILE *fp, *ccd;
+	char iface[IF_SIZE];
+	char buffer[BUF_SIZE];
+	char buffer2[BUF_SIZE];
+	char *argv[6], *chp, *route;
+	char *br_ipaddr, *br_netmask;
+	int argc = 0;
+	int c2c = 0;
+	enum { TAP, TUN } ifType = TAP;
+	enum { TLS, SECRET, CUSTOM } cryptMode = CUSTOM;
+	int nvi, ip[4], nm[4];
+	long int nvl;
+	int pid;
+
+	vpnlog(VPN_LOG_INFO,"Softether starting...");
+	// Make sure softether directory exists
+	mkdir("/etc/softether", 0700);
+	// Make sure symbolic link exists
+	if ( symlink("/usr/sbin/vpnserver", "/etc/softether/vpnserver" ))
+	{
+		vpnlog(VPN_LOG_ERROR,"Creating symlink failed...");
+		stop_softether();
+		return;
+	}
+
+	// Make sure module is loaded
+	modprobe("tun");
+	f_wait_exists("/dev/net/tun", 5);
+
+
+	// Build and write config files
+	sprintf(&buffer[0], "/etc/softether/vpnserver start");
+	vpnlog(VPN_LOG_INFO,"Starting softether: %s",&buffer[0]);
+	for (argv[argc=0] = strtok(&buffer[0], " "); argv[argc] != NULL; argv[++argc] = strtok(NULL, " "));
+	if ( _eval(argv, NULL, 0, &pid) )
+	{
+		vpnlog(VPN_LOG_ERROR,"Starting softether instance failed...");
+		stop_softether();
+		return;
+	}
+	vpnlog(VPN_LOG_EXTRA,"Done starting softether");
+	
+	// Add interface to LAN bridge (TAP only)
+	snprintf(&buffer[0], BUF_SIZE, "brctl addif br0 tap_vpn");
+	for (argv[argc=0] = strtok(&buffer[0], " "); argv[argc] != NULL; argv[++argc] = strtok(NULL, " "));
+	if ( _eval(argv, NULL, 0, NULL) )
+	{
+		vpnlog(VPN_LOG_ERROR,"Adding tunnel interface to bridge failed...");
+		stop_softether();
+		return;
+	}
+
+	// Handle firewall rules if appropriate
+	if ( 1 == 1 )
+	{
+		// Create firewall rules
+		vpnlog(VPN_LOG_EXTRA,"Creating firewall rules");
+		mkdir("/etc/softether/fw", 0700);
+		sprintf(&buffer[0], "/etc/softether/fw/fw.sh");
+		fp = fopen(&buffer[0], "w");
+		chmod(&buffer[0], S_IRUSR|S_IWUSR|S_IXUSR);
+		fprintf(fp, "#!/bin/sh\n");
+		fprintf(fp, "iptables -A INPUT -p tcp --dport 992 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p tcp --dport 443 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p tcp --dport 1194 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p tcp --dport 5555 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p udp --dport 4500 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p udp --dport 500 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p udp --dport 53 -j ACCEPT\n");
+		fclose(fp);
+		vpnlog(VPN_LOG_EXTRA,"Done creating firewall rules");
+
+		// Run the firewall rules
+		vpnlog(VPN_LOG_EXTRA,"Running firewall rules");
+		sprintf(&buffer[0], "/etc/softether/fw/fw.sh");
+		argv[0] = &buffer[0];
+		argv[1] = NULL;
+		_eval(argv, NULL, 0, NULL);
+		vpnlog(VPN_LOG_EXTRA,"Done running firewall rules");
+	}
+
+	vpnlog(VPN_LOG_INFO,"Softether start complete.");
+}
+
+void stop_softether()
+{
+	int argc;
+	char *argv[9];
+	char buffer[BUF_SIZE];
+
+	if (getpid() != 1) {
+		stop_service("vpnserver");
+		return;
+	}
+
+	vpnlog(VPN_LOG_INFO,"Stopping softether.");
+
+
+	// Remove firewall rules
+	vpnlog(VPN_LOG_EXTRA,"Removing firewall rules.");
+	sprintf(&buffer[0], "/etc/softether/fw/fw.sh");
+	argv[0] = "sed";
+	argv[1] = "-i";
+	argv[2] = "s/-A/-D/g;s/-I/-D/g";
+	argv[3] = &buffer[0];
+	argv[4] = NULL;
+	if (!_eval(argv, NULL, 0, NULL))
+	{
+		argv[0] = &buffer[0];
+		argv[1] = NULL;
+		_eval(argv, NULL, 0, NULL);
+	}
+	vpnlog(VPN_LOG_EXTRA,"Done removing firewall rules.");
+
+	// Stop the VPN server
+	vpnlog(VPN_LOG_EXTRA,"Stopping softether server.");
+	sprintf(&buffer[0], "vpnserver");
+	if ( !waitfor(&buffer[0]) )
+		vpnlog(VPN_LOG_EXTRA,"softether server stopped.");
+
+	modprobe_r("tun");
+
+	vpnlog(VPN_LOG_INFO,"softether server stopped.");
+}
+
 void stop_vpnserver(int serverNum)
 {
 	int argc;
@@ -1192,6 +1319,35 @@ void stop_vpn_eas()
 			stop_vpnclient(nums[i]);
 		}
 	}
+}
+
+void run_softether_firewall_scripts()
+{
+	DIR *dir;
+	struct dirent *file;
+	char *fn;
+	char *argv[3];
+
+	if ( chdir("/etc/softether/fw") )
+		return;
+
+	dir = opendir("/etc/softether/fw");
+
+	vpnlog(VPN_LOG_EXTRA,"Beginning all firewall scripts...");
+	while ( (file = readdir(dir)) != NULL )
+	{
+		fn = file->d_name;
+		if ( fn[0] == '.' )
+			continue;
+		vpnlog(VPN_LOG_INFO,"Running firewall script: %s", fn);
+		argv[0] = "/bin/sh";
+		argv[1] = fn;
+		argv[2] = NULL;
+		_eval(argv, NULL, 0, NULL);
+	}
+	vpnlog(VPN_LOG_EXTRA,"Done with all firewall scripts...");
+
+	closedir(dir);
 }
 
 void run_vpn_firewall_scripts()
