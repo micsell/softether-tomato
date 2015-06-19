@@ -23,7 +23,7 @@
 #define VPN_LOG_NOTE 0
 #define VPN_LOG_INFO 1
 #define VPN_LOG_EXTRA 2
-#define vpnlog(level,x...) if(nvram_get_int("vpn_debug")>=level) syslog(LOG_INFO, #level ": " __LINE_T__ ": " x)
+#define vpnlog(level,x...) syslog(LOG_INFO, #level ": " __LINE_T__ ": " x)
 
 #define CLIENT_IF_START 10
 #define SERVER_IF_START 20
@@ -1084,6 +1084,7 @@ void start_softether()
 		return;
 	}
 	vpnlog(VPN_LOG_EXTRA,"Done starting softether");
+	f_wait_exists("/proc/sys/net/ipv4/conf/tap_vpn", 25);
 	
 	// Add interface to LAN bridge (TAP only)
 	snprintf(&buffer[0], BUF_SIZE, "brctl addif br0 tap_vpn");
@@ -1163,9 +1164,26 @@ void stop_softether()
 	if ( !waitfor(&buffer[0]) )
 		vpnlog(VPN_LOG_EXTRA,"softether server stopped.");
 
+	vpnlog(VPN_LOG_EXTRA,"Removing TUN driver.");
 	modprobe_r("tun");
+	vpnlog(VPN_LOG_EXTRA,"Saving softether config to NVRAM.");
+        if (eval("tar", "-C", "/", "-czf", "/tmp/softether.tgz", "etc/softether/vpn_server.config") == 0) {
+                if (nvram_set_file("softether_config", "/tmp/softether.tgz", 65536)) {
+                        nvram_commit_x();
+                } else {
+			vpnlog(VPN_LOG_ERROR,"Failed to save config to NVRAM.");
+                }
+        }
+        unlink("/tmp/softether.tgz");
+	vpnlog(VPN_LOG_EXTRA,"Done saving.");
 
-	vpnlog(VPN_LOG_INFO,"softether server stopped.");
+	// Delete all files for this server
+	vpnlog(VPN_LOG_EXTRA,"Deleting /etc/softether directory.");
+	sprintf(&buffer[0], "rm -rf /etc/softether ");
+	for (argv[argc=0] = strtok(&buffer[0], " "); argv[argc] != NULL; argv[++argc] = strtok(NULL, " "));
+	_eval(argv, NULL, 0, NULL);
+
+	vpnlog(VPN_LOG_INFO,"softether cleanup finished.");
 }
 
 void stop_vpnserver(int serverNum)
