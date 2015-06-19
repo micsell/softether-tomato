@@ -260,7 +260,12 @@ void start_dnsmasq()
 			fprintf(f,
 				"dhcp-option=tag:%s,3,%s\n",	// gateway
 				nvram_safe_get(lanN_ifname), nv);
-
+#ifdef TCONFIG_SOFTETHER
+			fprintf(f, "dhcp-option=tag:%s,6,%s\n",	// gateway
+				nvram_safe_get(lanN_ifname), nv);
+                        // We rebind to port 5353 and add firewall rules to redirect ports from LAN and localhost
+			fprintf(f, "port=5353\n");
+#endif
 			if (((nv = nvram_get("wan_wins")) != NULL) && (*nv) && (strcmp(nv, "0.0.0.0") != 0)) {
 				fprintf(f, "dhcp-option=tag:%s,44,%s\n", nvram_safe_get(lanN_ifname), nv);
 			}
