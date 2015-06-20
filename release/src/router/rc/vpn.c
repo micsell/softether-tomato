@@ -1091,7 +1091,7 @@ void start_softether()
 		return;
 	}
 	vpnlog(VPN_LOG_EXTRA,"Done starting softether");
-	f_wait_exists("/proc/sys/net/ipv4/conf/tap_vpn", 25);
+	f_wait_exists("/proc/sys/net/ipv4/conf/tap_vpn", 50);
 	
 	// Add interface to LAN bridge (TAP only)
 	snprintf(&buffer[0], BUF_SIZE, "brctl addif br0 tap_vpn");
