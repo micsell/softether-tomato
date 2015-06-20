@@ -338,6 +338,9 @@ const struct mime_handler mime_handlers[] = {
 #ifdef TCONFIG_PPTPD
 	{ "pptpd.cgi",		mime_javascript,			0,	wi_generic,			wo_pptpdcmd,		1 },	//!!AB - PPTPD
 #endif
+#ifdef TCONFIG_SOFTETHER
+	{ "softether.cgi",	mime_javascript,			0,	wi_generic,			NULL,	1 },
+#endif
 #ifdef TCONFIG_USB
 	{ "usbcmd.cgi",			mime_javascript,			0,	wi_generic,		wo_usbcommand,		1 },	//!!TB - USB
 #endif
@@ -1506,6 +1509,11 @@ static const nvset_t nvset_list[] = {
 	{ "vpn_client2_route",    V_01                },
 	{ "vpn_client2_routing_val", V_NONE           },
 #endif // vpn
+
+#ifdef TCONFIG_SOFTETHER
+// pptp server
+	{ "softether_enable",		V_01			},
+#endif
 
 #ifdef TCONFIG_PPTPD
 // pptp server

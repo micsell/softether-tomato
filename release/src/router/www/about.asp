@@ -91,6 +91,9 @@ function init()
 <div class='about'>
 <b>Tomato Firmware <% version(1); %></b><br>
 
+<!-- SOFTETHER-BEGIN -->
+<br>Support SoftEtherVPN and GUI for enable/disable,<br>
+<!-- SOFTETHER-END -->
 <!-- USB-BEGIN -->
 <br>USB support integration and GUI,<br>
 <!-- USB-END -->

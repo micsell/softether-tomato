@@ -990,6 +990,9 @@ const defaults_t defaults[] = {
 	{ "pptp_client_dfltroute","0"             },
 #endif
 
+#ifdef TCONFIG_SOFTETHER
+	{"softether_enable",	"0"		},
+#endif
 #ifdef TCONFIG_TINC
 	{"tinc_wanup",			"0"		},
 	{"tinc_name",			""		},

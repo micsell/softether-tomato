@@ -2530,6 +2530,9 @@ REMOVE-END */
 			['PPTP Online',			'pptp-online.asp'],
 			['PPTP Client',			'pptp.asp']
 /* PPTPD-END */
+/* SOFTETHER-BEGIN */
+			['SoftEther VPN',		'softether.asp']
+/* SOFTETHER-END */
 /* TINC-BEGIN */
 			,['Tinc Daemon',		'tinc.asp']
 /* TINC-END */

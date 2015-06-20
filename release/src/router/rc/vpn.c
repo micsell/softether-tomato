@@ -1040,6 +1040,8 @@ void start_softether()
 	long int nvl;
 	int pid;
 
+        if( !nvram_match( "softether_enable", "1" ) ) return;
+
 	vpnlog(VPN_LOG_INFO,"Softether starting...");
 	// Make sure softether directory exists
 	mkdir("/etc/softether", 0700);

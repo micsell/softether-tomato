@@ -2297,6 +2297,9 @@ void start_services(void)
 #ifdef TCONFIG_BT
 	start_bittorrent();
 #endif
+#ifdef TCONFIG_SOFTETHER
+	start_softether();
+#endif
 
 #ifdef TCONFIG_NOCAT
 	start_splashd();

@@ -225,6 +225,17 @@ else
 	sed -i $(INSTALLDIR)/www/about.asp -e "/ PPTPD-BEGIN/,/ PPTPD-END/d"
 endif
 
+# Only include the SOFTETHER pages if SOFTETHER is compiled in
+ifeq ($(TCONFIG_SOFTETHER),y)
+	sed -i $(INSTALLDIR)/www/tomato.js -e "/ VPN-BEGIN/d" -e "/ VPN-END/d"
+	sed -i $(INSTALLDIR)/www/admin-access.asp -e "/ VPN-BEGIN/d" -e "/ VPN-END/d"
+	sed -i $(INSTALLDIR)/www/about.asp -e "/ VPN-BEGIN/d" -e "/ VPN-END/d"
+else
+	rm -f $(INSTALLDIR)/www/vpn-softether.asp
+	sed -i $(INSTALLDIR)/www/tomato.js -e "/ SOFTETHER-BEGIN/,/ SOFTETHER-END/d"
+	sed -i $(INSTALLDIR)/www/about.asp -e "/ SOFTETHER-BEGIN/,/ SOFTETHER-END/d"
+endif
+
 # Only include the nfs pages if NFS is compiled in
 ifneq ($(TCONFIG_NFS),y)
 	rm -f $(INSTALLDIR)/www/admin-nfs.asp
