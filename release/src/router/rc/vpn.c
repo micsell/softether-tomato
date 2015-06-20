@@ -1043,6 +1043,13 @@ void start_softether()
 	vpnlog(VPN_LOG_INFO,"Softether starting...");
 	// Make sure softether directory exists
 	mkdir("/etc/softether", 0700);
+	vpnlog(VPN_LOG_EXTRA,"mount tmpfs on /etc/softether.");
+        if (eval("/bin/mount", "-t", "tmpfs", "-o", "size=2M", "tmpfs", "/etc/softether") != 0) {
+		vpnlog(VPN_LOG_EXTRA,"mount tmpfs on /etc/softether FAILED.");
+		stop_softether();
+		return;
+	}
+
         if (nvram_get_file("softether_config", "/tmp/softether.tgz", 65536)) {
             if (eval("tar", "-xzf", "/tmp/softether.tgz", "-C", "/", "etc/softether/vpn_server.config") == 0)
                 unlink("/tmp/softether.tgz");
@@ -1106,10 +1113,10 @@ void start_softether()
 		fp = fopen(&buffer[0], "w");
 		chmod(&buffer[0], S_IRUSR|S_IWUSR|S_IXUSR);
 		fprintf(fp, "#!/bin/sh\n");
-		fprintf(fp, "iptables -A INPUT -p tcp --dport 992 -j ACCEPT\n");
-		fprintf(fp, "iptables -A INPUT -p tcp --dport 443 -j ACCEPT\n");
-		fprintf(fp, "iptables -A INPUT -p tcp --dport 1194 -j ACCEPT\n");
-		fprintf(fp, "iptables -A INPUT -p tcp --dport 5555 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p tcp -m state --state NEW --dport 992 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p tcp -m state --state NEW --dport 443 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p tcp -m state --state NEW --dport 1194 -j ACCEPT\n");
+		fprintf(fp, "iptables -A INPUT -p tcp -m state --state NEW --dport 5555 -j ACCEPT\n");
 		fprintf(fp, "iptables -A INPUT -p udp --dport 4500 -j ACCEPT\n");
 		fprintf(fp, "iptables -A INPUT -p udp --dport 500 -j ACCEPT\n");
 		fprintf(fp, "iptables -A INPUT -p udp --dport 53 -j ACCEPT\n");
@@ -1178,8 +1185,8 @@ void stop_softether()
 	vpnlog(VPN_LOG_EXTRA,"Done saving.");
 
 	// Delete all files for this server
-	vpnlog(VPN_LOG_EXTRA,"Deleting /etc/softether directory.");
-	sprintf(&buffer[0], "rm -rf /etc/softether ");
+	vpnlog(VPN_LOG_EXTRA,"Umount /etc/softether/ directory");
+	sprintf(&buffer[0], "umount /etc/softether");
 	for (argv[argc=0] = strtok(&buffer[0], " "); argv[argc] != NULL; argv[++argc] = strtok(NULL, " "));
 	_eval(argv, NULL, 0, NULL);
 
