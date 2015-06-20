@@ -1025,7 +1025,7 @@ endif
 
 k:
 ifeq ($(CONFIG_LINUX26),y)
-	@$(MAKE) bin NO_CIFS=y NO_ZEBRA=y B=V BUILD_DESC="Softether" USB="" PPTPD=y SOFTETHER=y
+	@$(MAKE) bin NO_CIFS=y NO_ZEBRA=y B=V BUILD_DESC="Softether" USB="" SOFTETHER=y
 else
 	@$(MAKE) bin OPENVPN=y NTFS=y BBEXTRAS=y USBEXTRAS=y B=E BUILD_DESC="$(VPN)" USB="USB" DNSCRYPT=y PPTPD=y
 endif
