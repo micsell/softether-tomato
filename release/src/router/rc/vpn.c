@@ -1191,6 +1191,8 @@ void stop_softether()
 	sprintf(&buffer[0], "umount /etc/softether");
 	for (argv[argc=0] = strtok(&buffer[0], " "); argv[argc] != NULL; argv[++argc] = strtok(NULL, " "));
 	_eval(argv, NULL, 0, NULL);
+	sprintf(&buffer[0], "Deleting /etc/softether");
+	rmdir("/etc/softether");
 
 	vpnlog(VPN_LOG_INFO,"softether cleanup finished.");
 }
