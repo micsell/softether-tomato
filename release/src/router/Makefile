@@ -2121,7 +2121,7 @@ openvpn-install: openvpn
 	$(STRIP) -s $(INSTALLDIR)/openvpn/usr/sbin/openvpn
 	chmod 0500 $(INSTALLDIR)/openvpn/usr/sbin/openvpn
 
-softether:
+softether: libreadline libiconv libncurses zlib openssl
 	echo "Done"
 
 softether-clean:
@@ -2238,6 +2238,31 @@ libiconv-install: libiconv
 	cd $(INSTALLDIR)/libiconv/usr/lib/ && \
 		ln -sf libiconv.so.2.5.1 libiconv.so.2 && \
 		ln -sf libiconv.so.2.5.1 libiconv.so
+
+libreadline/stamp-h1:
+	cd libreadline && CC=$(CC) \
+	CFLAGS="-Os -Wall $(EXTRACFLAGS) -ffunction-sections -fdata-sections" \
+	LDFLAGS="-ffunction-sections -fdata-sections -Wl,--gc-sections -fPIC" \
+	$(CONFIGURE) --prefix=/usr --disable-nls --enable-static --enable-shared
+	touch libreadline/stamp-h1
+
+libreadline: libreadline/stamp-h1
+	@$(SEP)
+	$(MAKE) -C libreadline $(PARALLEL_BUILD)
+	$(MAKE) -C libreadline DESTDIR=$(TOP)/libreadline/staged install
+
+libreadline-clean:
+	-@$(MAKE) -C libreadline clean
+	@rm -rf libreadline/stamp-h1 libreadline/Makefile
+	@rm -rf libreadline/staged
+
+libreadline-install: libreadline
+	install -d $(INSTALLDIR)/libreadline/usr/lib
+	install libreadline/lib/.libs/libreadline.so.2.5.1 $(INSTALLDIR)/libreadline/usr/lib/libreadline.so.2.5.1
+	$(STRIP)-s $(INSTALLDIR)/libreadline/usr/lib/libreadline.so.2.5.1
+	cd $(INSTALLDIR)/libreadline/usr/lib/ && \
+		ln -sf libreadline.so.2.5.1 libreadline.so.2 && \
+		ln -sf libreadline.so.2.5.1 libreadline.so
 
 transmission/stamp-h1: openssl libcurl libevent zlib
 	cd transmission && CC=$(CC) STRIP='mipsel-uclibc-strip' \
