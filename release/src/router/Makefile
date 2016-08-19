@@ -2173,14 +2173,12 @@ softether: softether/.hamcore libiconv libncurses zlib openssl
 	echo "Done"
 
 softether-clean:
-	echo "Done"
+	cd softether && make clean 
+	echo "Done clean"
 
 softether-install:
 	install -D softether/bin/vpnserver/vpnserver $(INSTALLDIR)/softether/usr/sbin/vpnserver
 	install -D softether/bin/vpnserver/hamcore.se2 $(INSTALLDIR)/softether/usr/sbin/hamcore.se2
-	install -d $(INSTALLDIR)/zlib/usr/lib
-	install -D zlib/libz.so.1 $(INSTALLDIR)/zlib/usr/lib/
-	$(STRIP) -s $(INSTALLDIR)/zlib/usr/lib/libz.so.1
 	$(STRIP) -s $(INSTALLDIR)/softether/usr/sbin/vpnserver
 	chmod 0500 $(INSTALLDIR)/softether/usr/sbin/vpnserver
 
@@ -2287,18 +2285,6 @@ libiconv-install: libiconv
 	install -d $(INSTALLDIR)/libiconv/usr/lib
 	install libiconv/lib/.libs/libiconv.so.2.5.1 $(INSTALLDIR)/libiconv/usr/lib/libiconv.so.2.5.1
 	$(STRIP)-s $(INSTALLDIR)/libiconv/usr/lib/libiconv.so.2.5.1
-	cd $(INSTALLDIR)/libiconv/usr/lib/ && \
-		ln -sf libiconv.so.2.5.1 libiconv.so.2 && \
-		ln -sf libiconv.so.2.5.1 libiconv.so
-
-ifneq ($(TCONFIG_SOFTETHER),y)
-	install -d $(INSTALLDIR)/libiconv/usr/lib
-	install libiconv/lib/.libs/libiconv.so.2.5.1 $(INSTALLDIR)/libiconv/usr/lib/libiconv.so.2.5.1
-	$(STRIP)-s $(INSTALLDIR)/libiconv/usr/lib/libiconv.so.2.5.1
-	cd $(INSTALLDIR)/libiconv/usr/lib/ && \
-		ln -sf libiconv.so.2.5.1 libiconv.so.2 && \
-		ln -sf libiconv.so.2.5.1 libiconv.so
-endif
 
 transmission/stamp-h1: openssl libcurl libevent zlib
 	cd transmission && CC=$(CC) STRIP='mipsel-uclibc-strip' \

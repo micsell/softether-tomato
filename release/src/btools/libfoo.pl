@@ -168,8 +168,6 @@ sub fixDyn
 	fixDynDep("dnscrypt-proxy", "libsodium.so.13.0.2");
 	fixDynDep("tincd", "liblzo2.so.2.0.0");
 	fixDynDep("openvpn", "liblzo2.so.2.0.0");
-	fixDynDep("vpnserver", "libiconv.so.2.5.1");
-	fixDynDep("vpnserver", "libz.so.1");
 
 #minidlna module, bwq518
 	fixDynDep("minidlna", "libz.so.1");
