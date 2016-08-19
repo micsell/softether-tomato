@@ -1,0 +1,26 @@
+# SoftEther VPN String Table
+# Copyright (c) SoftEther VPN Project. All Rights Reserved.
+#
+# http://www.softether.co.jp/
+
+
+###########################################################################
+#                                                                         #
+# String data such as messages in software                                #
+# (Excludes dialog box resource strings)                                  #
+#                                                                         #
+###########################################################################
+
+
+
+# Environment parameters
+DEFAULT_FONT			Tahoma
+DEFAULT_FONT_WIN7		Segoe UI
+DEFAULT_FONT_2			Tahoma
+DEFAULT_FONT_SIZE		8
+DEFAULE_LOCALE			- - $ : : $ Sun Mon Tue Wed Thu Fri Sat : : : $ (None)
+
+
+# 言語
+# (0: 日本語, 1: 英語)
+LANG					1
